@@ -22,14 +22,17 @@ const voteModule = sdk.getVoteModule(
 
 
 const App = () => {
+
   // Use the connectWallet hook thirdweb gives us.
   const { connectWallet, address, error, provider } = useWeb3();
+
   // console.log(connectWallet);
-  // console.log("👋 Address:", address)
+  console.log("👋 You're using Address:", address)
 
   // The signer is required to sign transactions on the blockchain.
   // Without it we can only read data, not write.
   const signer = provider ? provider.getSigner() : undefined;
+
 
   // State variable for us to know if user has our NFT.
   const [hasClaimedNFT, setHasClaimedNFT] = useState(false);
@@ -153,7 +156,6 @@ const App = () => {
     if (!address) {
       return;
     }
-
     // Check if the user has the NFT by using bundleDropModule.balanceOf
     return bundleDropModule
       .balanceOf(address, "0") //this means: "does this user own an nft with tokenid = 0?"
@@ -192,7 +194,7 @@ const App = () => {
     return (
       <div className="landing">
         <h1>Welcome to AnjunaDAO</h1>
-        <img src={logo} alt='anjuna-logo' height="100" width="200"/>
+        <img src={logo} alt='anjuna-logo' height="100" width="200" />
         <button onClick={() => connectWallet("injected")} className="btn-hero">
           Connect your wallet
         </button>
@@ -206,7 +208,7 @@ const App = () => {
     return (
       <div className="member-page">
         <h1>AnjunaDAO Member Page</h1>
-        <img src={logo} alt='anjuna-logo' height="100" width="200"/>
+        <img src={logo} alt='anjuna-logo' height="100" width="200" />
         <p>Congratulations on being a member</p>
         <div>
           <div>
@@ -360,25 +362,50 @@ const App = () => {
     );
   };
 
-  const mintNft = () => {
+  //this appears to be buggy
+  // const mintNft = () => {
+  //   setIsClaiming(true);
+  //   // Call bundleDropModule.claim("0", 1) to mint nft to user's wallet.
+  //   bundleDropModule
+  //     .claim("0", 1) //this says: mint 1 nft with the tokenID = 0
+  //     .catch((err) => {
+  //       console.error("failed to claim", err);
+  //       setIsClaiming(false);
+  //     })
+  //     .finally(() => {
+  //       // Stop loading state.
+  //       setIsClaiming(false);
+  //       // Set claim state.
+  //       setHasClaimedNFT(true);
+  //       // Show user their fancy new NFT!
+  //       console.log(
+  //         `🌊 Successfully Minted! Check it out on Rarible: https://rinkeby.rarible.com/token/${bundleDropModule.address}:0`
+  //       );
+  //     });
+  // }
+
+  const mintNft = async () => {
     setIsClaiming(true);
-    // Call bundleDropModule.claim("0", 1) to mint nft to user's wallet.
-    bundleDropModule
-      .claim("0", 1) //this says: mint 1 nft with the tokenID = 0
-      .catch((err) => {
-        console.error("failed to claim", err);
+    try {
+      // Call bundleDropModule.claim("0", 1) to mint nft to user's wallet.
+      await bundleDropModule.claim("0", 1);
+    }
+    catch (err) {
+        if(err.code === 4001) {
+          window.alert('Failed to mint the NFT, you rejected the transaction!')
+        }
         setIsClaiming(false);
-      })
-      .finally(() => {
-        // Stop loading state.
-        setIsClaiming(false);
-        // Set claim state.
-        setHasClaimedNFT(true);
-        // Show user their fancy new NFT!
-        console.log(
-          `🌊 Successfully Minted! Check it out on Rarible: https://rinkeby.rarible.com/token/${bundleDropModule.address}:0`
-        );
-      });
+        return;    
+    }
+    // Stop loading state.
+    setIsClaiming(false);
+    // Set claim state.
+    setHasClaimedNFT(true);
+    // Show user their fancy new NFT!
+    console.log(
+      `🌊 Successfully Minted! Check it out on Rarible: https://rinkeby.rarible.com/token/${bundleDropModule.address}:0`
+    );
+
   }
 
   // Render mint nft screen.
@@ -389,8 +416,9 @@ const App = () => {
         disabled={isClaiming}
         onClick={() => mintNft()}
       >
-        {isClaiming ? "Minting... This may take a few minutes" : "Mint your nft (FREE)"}
+        {isClaiming ? "Minting... This may take a few minutes" : "CLICK HERE"}
       </button>
+      <small>Make sure you're using the Rinkby test network and have ETH in your wallet. You can get ETH using <a href="https://faucet.rinkeby.io/" target="_blank">this faucet</a>.</small>
     </div>
   );
 };

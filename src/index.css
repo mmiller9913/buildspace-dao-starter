@@ -58,9 +58,17 @@ h1 {
   text-align: center;
 }
 
+/* matt added start  */
 img {
   margin-bottom: 40px;
 }
+
+a {
+  color: white;
+}
+
+/* matt added end */
+
 
 .member-page > div {
   display: flex;
