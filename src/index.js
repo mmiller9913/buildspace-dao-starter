@@ -34,5 +34,6 @@ ReactDOM.render(
 
 //to fix: 
 // failure case after minting nft -- done
-// on initial load, briefly flashed connect wallet page even if wallet already connected
-//  Successfully Minted! Check it out on Rarible: https://rinkeby.rarible.com/token/0x5194915CD3f7d8d039b0fBc19Eb8db3eF6Ee21Ae:0 
+// on initial load, briefly flashed connect wallet page even if wallet already connected -- NEED TO DO
+// Successfully Minted! Check it out on Rarible: https://rinkeby.rarible.com/token/0x5194915CD3f7d8d039b0fBc19Eb8db3eF6Ee21Ae:0 
+  //--made the above bullet a window.alert

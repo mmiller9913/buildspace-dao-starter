@@ -33,7 +33,6 @@ const App = () => {
   // Without it we can only read data, not write.
   const signer = provider ? provider.getSigner() : undefined;
 
-
   // State variable for us to know if user has our NFT.
   const [hasClaimedNFT, setHasClaimedNFT] = useState(false);
   // isClaiming lets us easily keep a loading state while the NFT is minting.
@@ -43,6 +42,10 @@ const App = () => {
   const [memberTokenAmounts, setMemberTokenAmounts] = useState({});
   // The array holding all of our members addresses.
   const [memberAddresses, setMemberAddresses] = useState([]);
+
+  //added these to prevent flashes of the wrong UI 
+  const [isFetchingAddress, setIsFetchingAddress] = useState(true);
+  const [checkingNFTClaimStatus, setIsCheckingNFTClaimStatus] = useState(false);
 
   // state variables for voting on proposals 
   const [proposals, setProposals] = useState([]);
@@ -129,6 +132,13 @@ const App = () => {
       });
   }, [hasClaimedNFT]); //second argument means this runs on render and whenever hasClaimedNFT changes
 
+  useEffect(() => {
+    if(address !== undefined) {
+      console.log('no longer fetching address, setting isFetchingAddress from true to false')
+      setIsFetchingAddress(false);
+    }
+  }, [address])
+
   // Now, we combine the memberAddresses and memberTokenAmounts into a single array
   // useMemo is a method in React for storying a computer variable
   const memberList = useMemo(() => {
@@ -152,8 +162,10 @@ const App = () => {
   }, [signer]);
 
   useEffect(() => {
+    setIsCheckingNFTClaimStatus(true);
     // If they don't have an connected wallet, exit!
     if (!address) {
+      setIsCheckingNFTClaimStatus(false);
       return;
     }
     // Check if the user has the NFT by using bundleDropModule.balanceOf
@@ -163,15 +175,18 @@ const App = () => {
         // If balance is greater than 0, they have our NFT!
         if (balance.gt(0)) {
           setHasClaimedNFT(true);
-          console.log("🌟 this user has a membership NFT!")
+          console.log("🌟 this user has a membership NFT!");
+          setIsCheckingNFTClaimStatus(false);
         } else {
           setHasClaimedNFT(false);
           console.log("😭 this user doesn't have a membership NFT.")
+          setIsCheckingNFTClaimStatus(false);
         }
       })
       .catch((error) => {
         setHasClaimedNFT(false);
         console.error("failed to nft balance", error);
+        setIsCheckingNFTClaimStatus(false);
       });
   }, [address]);  //second argument means this runs on render and whenever address changes
 
@@ -402,25 +417,30 @@ const App = () => {
     // Set claim state.
     setHasClaimedNFT(true);
     // Show user their fancy new NFT!
-    console.log(
+    window.alert(
       `🌊 Successfully Minted! Check it out on Rarible: https://rinkeby.rarible.com/token/${bundleDropModule.address}:0`
     );
 
   }
 
   // Render mint nft screen.
+  if(!hasClaimedNFT && !isFetchingAddress && !checkingNFTClaimStatus) {
   return (
     <div className="mint-nft">
       <h1>Mint your free AnjunaDAO Membership NFT</h1>
+      <img src={logo} alt='anjuna-logo' height="100" width="200" />
       <button
         disabled={isClaiming}
         onClick={() => mintNft()}
       >
         {isClaiming ? "Minting... This may take a few minutes" : "CLICK HERE"}
       </button>
-      <small>Make sure you're using the Rinkby test network and have ETH in your wallet. You can get ETH using <a href="https://faucet.rinkeby.io/" target="_blank">this faucet</a>.</small>
+      <small>Make sure you're using the Rinkby test network and have ETH in your wallet. You can get ETH using <a href="https://faucet.rinkeby.io/">this faucet</a>.</small>
     </div>
   );
+  }
+
+  return (null);
 };
 
 export default App
