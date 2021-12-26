@@ -435,7 +435,7 @@ const App = () => {
       >
         {isClaiming ? "Minting... This may take a few minutes" : "CLICK HERE"}
       </button>
-      <small>Make sure you're using the Rinkby test network and have ETH in your wallet. You can get ETH using <a href="https://faucet.rinkeby.io/">this faucet</a>.</small>
+      <small>Make sure you're using the Rinkby test network and have ETH in your wallet. You can get ETH using <a href="https://buildspace-faucet.vercel.app/">this faucet</a>.</small>
     </div>
   );
   }
