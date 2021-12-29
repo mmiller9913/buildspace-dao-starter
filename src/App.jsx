@@ -84,8 +84,10 @@ const App = () => {
     voteModule
       .hasVoted(proposals[0].proposalId, address)
       .then((hasVoted) => {
-        setHasVoted(hasVoted);
-        console.log("🥵 User has already voted")
+        if(hasVoted) {
+          setHasVoted(hasVoted);
+          console.log("🥵 User has already voted")
+        }
       })
       .catch((err) => {
         console.error("failed to check if wallet has voted", err);
@@ -211,7 +213,7 @@ const App = () => {
         <h1>Welcome to AnjunaDAO</h1>
         <img src={logo} alt='anjuna-logo' height="100" width="200" />
         <button onClick={() => connectWallet("injected")} className="btn-hero">
-          Connect your wallet
+          Connect your wallet using the Rinkeby Test Network
         </button>
       </div>
     );
@@ -227,7 +229,7 @@ const App = () => {
         <p>Congratulations on being a member</p>
         <div>
           <div>
-            <h2>Member List</h2>
+            <h2>Member List (Tokens Previously Distributed Via Airdrop, Next Airdrop TBD)</h2>
             <table className="card">
               <thead>
                 <tr>
@@ -433,9 +435,9 @@ const App = () => {
         disabled={isClaiming}
         onClick={() => mintNft()}
       >
-        {isClaiming ? "Minting... This may take a few minutes" : "CLICK HERE"}
+        {isClaiming ? "Minting... This may take a few minutes. Please confirm the transaction." : "CLICK HERE"}
       </button>
-      <small>Make sure you're using the Rinkby test network and have ETH in your wallet. You can get ETH using <a href="https://buildspace-faucet.vercel.app/">this faucet</a>.</small>
+      <small>Make sure you're using the Rinkby test network and have ETH in your wallet. You can get ETH using <a href="https://faucet.rinkeby.io/">this faucet</a>.</small>
     </div>
   );
   }
