@@ -52,6 +52,59 @@ const App = () => {
   const [isVoting, setIsVoting] = useState(false);
   const [hasVoted, setHasVoted] = useState(false);
 
+  const [network, setNetwork] = useState("");
+  const [currentAccount, setCurrentAccount] = useState("");
+
+  const checkIfWalletIsConnected = async () => {
+    try {
+      const { ethereum } = window;
+
+      if (!ethereum) {
+        console.log("Make sure you have metamask!");
+        return;
+      } else {
+        console.log("We have the ethereum object", ethereum);
+      }
+
+      //check to make sure on the right checkNetwork
+      let chainId = await ethereum.request({ method: 'eth_chainId' });
+      console.log("Connected to chain " + chainId);
+      // String, hex code of the chainId of the Rinkebey test network
+      const rinkebyChainId = "0x4";
+      if (chainId === rinkebyChainId) {
+        setNetwork("Rinkeby")
+      }
+
+      const accounts = await ethereum.request({ method: "eth_accounts" });
+      if (accounts.length !== 0) {
+        const account = accounts[0];
+        console.log("Found an authorized account:", account);
+        setCurrentAccount(account);
+      } else {
+        console.log("No authorized account found")
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  useEffect(() => {
+    checkIfWalletIsConnected();
+  }, [])
+
+  //listen for chain changes
+  useEffect(() => {
+    if (window.ethereum) {
+      window.ethereum.on('chainChanged', () => {
+        window.location.reload();
+      })
+
+      window.ethereum.on('accountsChanged', () => {
+        window.location.reload();
+      })
+    }
+  })
+
   // Retreive all our existing proposals from the contract.
   useEffect(() => {
     if (!hasClaimedNFT) {
@@ -84,7 +137,7 @@ const App = () => {
     voteModule
       .hasVoted(proposals[0].proposalId, address)
       .then((hasVoted) => {
-        if(hasVoted) {
+        if (hasVoted) {
           setHasVoted(hasVoted);
           console.log("🥵 User has already voted")
         }
@@ -135,7 +188,7 @@ const App = () => {
   }, [hasClaimedNFT]); //second argument means this runs on render and whenever hasClaimedNFT changes
 
   useEffect(() => {
-    if(address !== undefined) {
+    if (address !== undefined) {
       console.log('no longer fetching address, setting isFetchingAddress from true to false')
       setIsFetchingAddress(false);
     }
@@ -192,28 +245,47 @@ const App = () => {
       });
   }, [address]);  //second argument means this runs on render and whenever address changes
 
-  //handle the case when user isn't connected to Rinkby test network 
-  if (error && error.name === "UnsupportedChainIdError") {
+  //handle the case when user isn't connected to Rinkby test network -- this doesn't work when deployed
+  // if (error && error.name === "UnsupportedChainIdError") {
+  //   return (
+  //     <div className="unsupported-network">
+  //       <h2>Please connect to Rinkeby</h2>
+  //       <p>
+  //         This dapp only works on the Rinkeby network, please switch networks
+  //         in your connected wallet.
+  //       </p>
+  //     </div>
+  //   );
+  // }
+
+  console.log(`Youre using the ${network} -- ${currentAccount}`);
+
+  //Case where user isn't connected to Rinkeyby
+  if (currentAccount && network === "") {
     return (
-      <div className="unsupported-network">
-        <h2>Please connect to Rinkeby</h2>
-        <p>
-          This dapp only works on the Rinkeby network, please switch networks
-          in your connected wallet.
-        </p>
+      <div className="landing">
+        <h1>Welcome to AnjunaDAO</h1>
+        <img src={logo} alt='anjuna-logo' height="100" width="200" />
+        <div className="unsupported-network">
+          <h2>Please connect to Rinkeby</h2>
+          <p>
+            This dapp only works on the Rinkeby network, please switch networks
+            in your connected wallet.
+          </p>
+        </div>
       </div>
     );
   }
 
   // This is the case where the user hasn't connected their wallet
-  // to your web app. Let them call connectWallet.
+  // Let them call connectWallet.
   if (!address) {
     return (
       <div className="landing">
         <h1>Welcome to AnjunaDAO</h1>
         <img src={logo} alt='anjuna-logo' height="100" width="200" />
         <button onClick={() => connectWallet("injected")} className="btn-hero">
-          Connect your wallet using the Rinkeby Test Network
+          Click Here to Connect your wallet using the Rinkeby Test Network
         </button>
       </div>
     );
@@ -379,28 +451,6 @@ const App = () => {
     );
   };
 
-  //this appears to be buggy
-  // const mintNft = () => {
-  //   setIsClaiming(true);
-  //   // Call bundleDropModule.claim("0", 1) to mint nft to user's wallet.
-  //   bundleDropModule
-  //     .claim("0", 1) //this says: mint 1 nft with the tokenID = 0
-  //     .catch((err) => {
-  //       console.error("failed to claim", err);
-  //       setIsClaiming(false);
-  //     })
-  //     .finally(() => {
-  //       // Stop loading state.
-  //       setIsClaiming(false);
-  //       // Set claim state.
-  //       setHasClaimedNFT(true);
-  //       // Show user their fancy new NFT!
-  //       console.log(
-  //         `🌊 Successfully Minted! Check it out on Rarible: https://rinkeby.rarible.com/token/${bundleDropModule.address}:0`
-  //       );
-  //     });
-  // }
-
   const mintNft = async () => {
     setIsClaiming(true);
     try {
@@ -408,11 +458,11 @@ const App = () => {
       await bundleDropModule.claim("0", 1);
     }
     catch (err) {
-        if(err.code === 4001) {
-          window.alert('Failed to mint the NFT, you rejected the transaction!')
-        }
-        setIsClaiming(false);
-        return;    
+      if (err.code === 4001) {
+        window.alert('Failed to mint the NFT, you rejected the transaction!')
+      }
+      setIsClaiming(false);
+      return;
     }
     // Stop loading state.
     setIsClaiming(false);
@@ -426,20 +476,20 @@ const App = () => {
   }
 
   // Render mint nft screen.
-  if(!hasClaimedNFT && !isFetchingAddress && !checkingNFTClaimStatus) {
-  return (
-    <div className="mint-nft">
-      <h1>Mint your free AnjunaDAO Membership NFT</h1>
-      <img src={logo} alt='anjuna-logo' height="100" width="200" />
-      <button
-        disabled={isClaiming}
-        onClick={() => mintNft()}
-      >
-        {isClaiming ? "Minting... This may take a few minutes. Please confirm the transaction." : "CLICK HERE"}
-      </button>
-      <small>Make sure you're using the Rinkby test network and have ETH in your wallet. You can get ETH using <a href="https://faucet.rinkeby.io/">this faucet</a>.</small>
-    </div>
-  );
+  if (!hasClaimedNFT && !isFetchingAddress && !checkingNFTClaimStatus) {
+    return (
+      <div className="mint-nft">
+        <h1>Mint your free AnjunaDAO Membership NFT</h1>
+        <img src={logo} alt='anjuna-logo' height="100" width="200" />
+        <button
+          disabled={isClaiming}
+          onClick={() => mintNft()}
+        >
+          {isClaiming ? "Minting... This may take a few minutes. Please confirm the transaction." : "CLICK HERE"}
+        </button>
+        <small>Make sure you're using the Rinkby test network and have ETH in your wallet. You can get ETH using <a href="https://faucet.rinkeby.io/">this faucet</a>.</small>
+      </div>
+    );
   }
 
   return (null);
