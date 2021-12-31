@@ -156,3 +156,7 @@ button:disabled {
   opacity: 0.8;
   pointer-events: none;
 }
+
+.rinkeby-warning {
+  margin-top: 20px;
+}
