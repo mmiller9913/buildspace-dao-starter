@@ -87,7 +87,7 @@ const App = () => {
       console.log(error);
     }
   }
-  
+
   useEffect(() => {
     checkIfWalletIsConnected();
   }, [])
@@ -484,7 +484,7 @@ const App = () => {
         >
           {isClaiming ? "Minting... This may take a few minutes. Please confirm the transaction." : "CLICK HERE"}
         </button>
-        <small>Make sure you're using the Rinkby test network and have ETH in your wallet. You can get ETH using <a href="https://faucet.rinkeby.io/">this faucet</a>.</small>
+        <small>Make sure you're using the Rinkby test network and have ETH in your wallet. You can get ETH using <a href="https://faucets.chain.link/rinkeby">this faucet</a>.</small>
       </div>
     );
   }
