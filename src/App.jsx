@@ -87,7 +87,7 @@ const App = () => {
       console.log(error);
     }
   }
-
+  
   useEffect(() => {
     checkIfWalletIsConnected();
   }, [])
@@ -264,6 +264,16 @@ const App = () => {
     );
   }
 
+  //needed this for error case when user doesn't have mestamask installed
+  const connectWalletStart = (str) => {
+    const { ethereum } = window;
+    if (!ethereum) {
+      alert("Please download MetaMask to use this dapp");
+      return;
+    }
+    connectWallet(str);
+  }
+
   // This is the case where the user hasn't connected their wallet
   // Let them call connectWallet.
   if (!address) {
@@ -271,8 +281,8 @@ const App = () => {
       <div className="landing">
         <h1>Welcome to AnjunaDAO</h1>
         <img src={logo} alt='anjuna-logo' height="100" width="200" />
-        <button onClick={() => connectWallet("injected")} className="btn-hero">
-          Click Here to Connect your wallet using the Rinkeby Test Network
+        <button onClick={() => connectWalletStart("injected")} className="btn-hero">
+          Click Here to Connect your wallet using the Rinkeby Test Network.
         </button>
       </div>
     );
