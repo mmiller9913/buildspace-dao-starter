@@ -24,7 +24,7 @@ const voteModule = sdk.getVoteModule(
 const App = () => {
 
   // Use the connectWallet hook thirdweb gives us.
-  const { connectWallet, address, error, provider } = useWeb3();
+  const { connectWallet, address, provider } = useWeb3();
 
   // console.log(connectWallet);
   console.log("👋 You're using Address:", address)
@@ -244,19 +244,6 @@ const App = () => {
         setIsCheckingNFTClaimStatus(false);
       });
   }, [address]);  //second argument means this runs on render and whenever address changes
-
-  //handle the case when user isn't connected to Rinkby test network -- this doesn't work when deployed
-  // if (error && error.name === "UnsupportedChainIdError") {
-  //   return (
-  //     <div className="unsupported-network">
-  //       <h2>Please connect to Rinkeby</h2>
-  //       <p>
-  //         This dapp only works on the Rinkeby network, please switch networks
-  //         in your connected wallet.
-  //       </p>
-  //     </div>
-  //   );
-  // }
 
   console.log(`Youre using the ${network} -- ${currentAccount}`);
 
