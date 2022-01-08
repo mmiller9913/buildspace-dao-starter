@@ -472,6 +472,14 @@ const App = () => {
 
   }
 
+  const renderLoader = () => {
+    if (isClaiming) {
+      return (
+        <div className="lds-spinner"><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div></div>
+      )
+    }
+  }
+
   // Render mint nft screen.
   if (!hasClaimedNFT && !isFetchingAddress && !checkingNFTClaimStatus) {
     return (
@@ -484,6 +492,7 @@ const App = () => {
         >
           {isClaiming ? "Minting... This may take a few minutes. Please confirm the transaction." : "CLICK HERE"}
         </button>
+        {renderLoader()}
         <small class="rinkeby-warning">Make sure you're using the Rinkby test network and have ETH in your wallet. You can get ETH using <a href="https://faucets.chain.link/rinkeby">this faucet</a>.</small>
       </div>
     );
